@@ -1,0 +1,370 @@
+/* =====================================================
+   GLOBAL
+   ===================================================== */
+
+/* IMPORTANT:
+   .root alone is not enough when ScrollPane covers the screen.
+   We keep .root AND force scroll panes to be transparent.
+*/
+.root {
+    -fx-font-family: "Times New Roman";
+    -fx-background-color: #91e5f6;
+}
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+
+.label {
+    -fx-text-fill: #0f172a;
+}
+
+.title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #000000;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.button {
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.button-primary {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.button-primary:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.button-accent {
+    -fx-background-color: #f59e0b;
+    -fx-text-fill: #0f172a;
+}
+
+.button-accent:hover {
+    -fx-background-color: #d97706;
+}
+
+.button-danger {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+}
+
+.button-danger:hover {
+    -fx-background-color: #dc2626;
+}
+
+.button-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #2563eb;
+    -fx-border-radius: 10;
+    -fx-text-fill: #2563eb;
+}
+
+.button-outline:hover {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+/* =====================================================
+   WORD COUNT BAR
+   ===================================================== */
+
+.word-bar {
+    -fx-pref-height: 10px;
+}
+
+.word-bar .track {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 8;
+}
+
+.word-bar-low .bar {
+    -fx-background-color: #ef4444;
+    -fx-background-radius: 8;
+}
+
+.word-bar-ok .bar {
+    -fx-background-color: #22c55e;
+    -fx-background-radius: 8;
+}
+
+/* =====================================================
+   CARDS
+   ===================================================== */
+
+.card,
+.project-file {
+    -fx-background-color: #fce4ec;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 4);
+}
+
+.card:hover,
+.project-file:hover {
+    -fx-border-color: #2563eb;
+}
+
+/* =====================================================
+   TEXT INPUTS
+   ===================================================== */
+
+.text-area,
+.text-field {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 18px;
+    -fx-padding: 12;
+}
+
+.text-area:focused,
+.text-field:focused {
+    -fx-border-color: #2563eb;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.25), 6, 0, 0, 0);
+}
+
+/* =====================================================
+   TOP BAR
+   ===================================================== */
+
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: #5aa9e6;
+    -fx-padding: 15;
+}
+
+/* =====================================================
+   TIMER BOX
+   ===================================================== */
+
+.timer-box {
+    -fx-background-color: #22c55e;
+    -fx-background-radius: 12;
+    -fx-padding: 8 18;
+}
+
+.timer-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: black;
+}
+
+/* =====================================================
+   TIMER & WORD COUNT
+   ===================================================== */
+
+.timer-normal {
+    -fx-text-fill: #22c55e;
+}
+
+.timer-warning {
+    -fx-text-fill: #ef4444;
+}
+
+.word-low {
+    -fx-text-fill: #ef4444;
+}
+
+.word-ok {
+    -fx-text-fill: #22c55e;
+}
+
+/* =====================================================
+   SCROLL PANE (CRITICAL FIX)
+   ===================================================== */
+
+/* Make scroll panes transparent so root background shows */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* =====================================================
+   FEEDBACK SECTIONS
+   ===================================================== */
+
+.feedback-section {
+    -fx-background-color: white;
+    -fx-padding: 20;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 3);
+}
+
+.feedback-band {
+    -fx-border-color: #ef4444;
+    -fx-border-width: 0 0 0 6;
+}
+
+.feedback-task {
+    -fx-border-color: #8b5cf6;
+    -fx-border-width: 0 0 0 6;
+}
+
+.feedback-coherence {
+    -fx-border-color: #2563eb;
+    -fx-border-width: 0 0 0 6;
+}
+
+.feedback-lexical {
+    -fx-border-color: #f59e0b;
+    -fx-border-width: 0 0 0 6;
+}
+
+.feedback-grammar {
+    -fx-border-color: #22c55e;
+    -fx-border-width: 0 0 0 6;
+}
+
+.feedback-sample {
+    -fx-border-color: #14b8a6;
+    -fx-border-width: 0 0 0 6;
+}
+
+/* =====================================================
+   PROGRESS INDICATOR
+   ===================================================== */
+
+.progress-indicator {
+    -fx-progress-color: #2563eb;
+}
+
+
+
+
+
+
+/* =====================================================
+   FEEDBACK PAGE – LAYOUT
+   ===================================================== */
+
+.feedback-root {
+    -fx-padding: 30;
+}
+
+.feedback-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   OVERALL BAND
+   ===================================================== */
+
+.overall-band {
+    -fx-background-color: #fff7ed;
+    -fx-border-color: #ef4444;
+    -fx-border-width: 0 0 0 6;
+    -fx-background-radius: 14;
+    -fx-padding: 25;
+}
+
+.overall-band-score {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ef4444;
+}
+
+/* =====================================================
+   BAND ROWS
+   ===================================================== */
+
+.band-row {
+    -fx-background-color: white;
+    -fx-padding: 18;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);
+}
+
+.band-label {
+    -fx-font-size: 16px;
+}
+
+.band-score {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* =====================================================
+   FEEDBACK CONTENT SECTIONS
+   ===================================================== */
+
+.feedback-content {
+    -fx-background-color: white;
+    -fx-padding: 22;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 3);
+}
+
+.feedback-content-text {
+    -fx-font-size: 15px;
+    -fx-wrap-text: true;
+}
+
+/* =====================================================
+   IMPROVEMENT LIST
+   ===================================================== */
+
+.improvement-item {
+    -fx-font-size: 14px;
+    -fx-padding: 4 0;
+}
+
+/* =====================================================
+   FEEDBACK BUTTON BAR
+   ===================================================== */
+
+.feedback-bottom-bar {
+    -fx-padding: 18;
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+
+
+
+
+
+
+
+/* =====================================================
+   PROJECT FILE
+   ===================================================== */
+
+.project-file {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 3);
+}
+
+.project-file:hover {
+    -fx-border-color: #2563eb;
+}

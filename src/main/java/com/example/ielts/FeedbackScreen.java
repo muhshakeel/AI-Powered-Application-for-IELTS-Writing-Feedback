@@ -1,228 +1,216 @@
 package com.example.ielts;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 public class FeedbackScreen {
-    private Scene scene;
-    private Stage primaryStage;
-    private int taskNumber;
-    private String question;
-    private String answer;
-    private ScrollPane scrollPane;
-    private VBox contentBox;
-    private Label loadingLabel;
 
-    public FeedbackScreen(Stage primaryStage, int taskNumber, String question, String answer) {
-        this.primaryStage = primaryStage;
-        this.taskNumber = taskNumber;
-        this.question = question;
-        this.answer = answer;
-        createScene();
-        getFeedback();
-    }
+    private final Scene scene;
+    private final VBox content = new VBox();
+    private final Stage primaryStage;
 
-    private void createScene() {
+    public FeedbackScreen(Stage stage, int taskNumber, String question, String answer) {
+        this.primaryStage = stage;
+
+        /* ================= ROOT ================= */
+
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #ecf0f1;");
+        root.setPadding(new Insets(20));
+        root.getStyleClass().add("root");
 
-        // Top Section
-        VBox topSection = createTopSection();
-        root.setTop(topSection);
+        /* ================= TITLE ================= */
 
-        // Center Section - Scrollable Content
-        contentBox = new VBox(20);
-        contentBox.setPadding(new Insets(20));
-        contentBox.setAlignment(Pos.TOP_CENTER);
+        Label title = new Label("IELTS Writing Task " + taskNumber + " – Feedback Report");
+        title.getStyleClass().add("feedback-title");
+        BorderPane.setAlignment(title, Pos.CENTER);
+        root.setTop(title);
 
-        loadingLabel = new Label("Analyzing your writing...\nPlease wait, this may take a moment.");
-        loadingLabel.setStyle(
-                "-fx-font-size: 18px; " +
-                        "-fx-text-fill: #7f8c8d; " +
-                        "-fx-text-alignment: center;"
-        );
+        /* ================= CENTER ================= */
 
-        ProgressIndicator progressIndicator = new ProgressIndicator();
-        progressIndicator.setPrefSize(80, 80);
+        content.setSpacing(20);
+        content.getStyleClass().add("feedback-root");
 
-        VBox loadingBox = new VBox(20, progressIndicator, loadingLabel);
-        loadingBox.setAlignment(Pos.CENTER);
-        loadingBox.setPadding(new Insets(100));
-
-        contentBox.getChildren().add(loadingBox);
-
-        scrollPane = new ScrollPane(contentBox);
+        ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent;");
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         root.setCenter(scrollPane);
 
-        // Bottom Section
-        HBox bottomSection = createBottomSection();
-        root.setBottom(bottomSection);
+        Label loading = new Label("Loading feedback...");
+        loading.getStyleClass().add("subtitle");
+        content.getChildren().add(loading);
 
-        scene = new Scene(root, 1000, 700);
-    }
+        /* ================= BOTTOM ================= */
 
-    private VBox createTopSection() {
-        VBox topBox = new VBox(10);
-        topBox.setAlignment(Pos.CENTER);
-        topBox.setPadding(new Insets(15));
-        topBox.setStyle("-fx-background-color: #34495e;");
+        HBox bottomBar = new HBox(20);
+        bottomBar.getStyleClass().add("feedback-bottom-bar");
 
-        Label titleLabel = new Label("IELTS Writing Task " + taskNumber + " - Feedback Report");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
-
-        topBox.getChildren().add(titleLabel);
-        return topBox;
-    }
-
-    private HBox createBottomSection() {
-        HBox bottomBox = new HBox(20);
-        bottomBox.setAlignment(Pos.CENTER);
-        bottomBox.setPadding(new Insets(15));
-        bottomBox.setStyle("-fx-background-color: #34495e;");
-
-        Button newTaskButton = new Button("Try Another Task");
-        newTaskButton.setPrefWidth(200);
-        newTaskButton.setPrefHeight(40);
-        newTaskButton.setStyle(
-                "-fx-background-color: #27ae60; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-background-radius: 5; " +
-                        "-fx-cursor: hand;"
+        Button homeBtn = new Button("Home");
+        homeBtn.getStyleClass().add("button-primary");
+        homeBtn.setOnAction(e ->
+                primaryStage.setScene(
+                        new TaskSelectionScreen(primaryStage).getScene()
+                )
         );
-        newTaskButton.setOnAction(e -> goToSelection());
 
-        Button exitButton = new Button("Exit");
-        exitButton.setPrefWidth(120);
-        exitButton.setPrefHeight(40);
-        exitButton.setStyle(
-                "-fx-background-color: #e74c3c; " +
-                        "-fx-text-fill: white; " +
-                        "-fx-font-size: 16px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-background-radius: 5; " +
-                        "-fx-cursor: hand;"
+        Button exitBtn = new Button("Exit");
+        exitBtn.getStyleClass().add("button-danger");
+        exitBtn.setOnAction(e -> primaryStage.close());
+
+        bottomBar.getChildren().addAll(homeBtn, exitBtn);
+        root.setBottom(bottomBar);
+
+        /* ================= SCENE ================= */
+
+        scene = new Scene(root, 1100, 750);
+
+        /* ================= CSS (FIXED) ================= */
+        /* ================= CSS ================= */
+
+        URL css = FeedbackScreen.class.getResource(
+                "/com/example/ielts/theme.css"
         );
-        exitButton.setOnAction(e -> primaryStage.close());
 
-        bottomBox.getChildren().addAll(newTaskButton, exitButton);
-        return bottomBox;
-    }
+        if (css == null) {
+            System.err.println("❌ theme.css NOT FOUND");
+        } else {
+            System.out.println("✅ theme.css loaded: " + css);
+            scene.getStylesheets().add(css.toExternalForm());
+        }
 
-    private void getFeedback() {
+
+        /* ================= LOAD FEEDBACK ================= */
+
         new Thread(() -> {
             try {
-                String feedback = AIService.getFeedback(taskNumber, question, answer);
+                FeedbackData data =
+                        AIService.getStructuredFeedback(taskNumber, question, answer);
 
-                javafx.application.Platform.runLater(() -> {
-                    displayFeedback(feedback);
-                });
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    showError("Failed to get feedback: " + e.getMessage());
+                Platform.runLater(() -> renderFeedback(data));
+
+            } catch (Exception ex) {
+                Platform.runLater(() -> {
+                    content.getChildren().clear();
+                    Label err = new Label("Error loading feedback:\n" + ex.getMessage());
+                    err.getStyleClass().add("subtitle");
+                    content.getChildren().add(err);
                 });
             }
         }).start();
     }
 
-    private void displayFeedback(String feedback) {
-        contentBox.getChildren().clear();
+    /* =====================================================
+                           RENDER UI
+       ===================================================== */
 
-        // Parse the feedback and create sections
-        VBox feedbackContent = new VBox(15);
-        feedbackContent.setPadding(new Insets(20));
-        feedbackContent.setMaxWidth(900);
+    private void renderFeedback(FeedbackData d) {
+        content.getChildren().clear();
 
-        // Original Question
-        feedbackContent.getChildren().add(createSection("Original Question", question, "#3498db"));
+        /* ===== OVERALL BAND ===== */
 
-        // Your Answer
-        feedbackContent.getChildren().add(createSection("Your Answer", answer, "#95a5a6"));
+        Label bandTitle = new Label("Overall Band");
+        bandTitle.getStyleClass().add("section-title");
 
-        // AI Feedback - parse and display
-        String[] sections = feedback.split("\n\n");
-        for (String section : sections) {
-            if (!section.trim().isEmpty()) {
-                // Try to identify section type
-                if (section.contains("BAND SCORE") || section.contains("Band Score")) {
-                    feedbackContent.getChildren().add(createSection("Band Score", section, "#e74c3c"));
-                } else if (section.contains("TASK ACHIEVEMENT") || section.contains("Task Achievement") ||
-                        section.contains("TASK RESPONSE") || section.contains("Task Response")) {
-                    feedbackContent.getChildren().add(createSection("Task Achievement/Response", section, "#9b59b6"));
-                } else if (section.contains("COHERENCE") || section.contains("Coherence")) {
-                    feedbackContent.getChildren().add(createSection("Coherence & Cohesion", section, "#3498db"));
-                } else if (section.contains("LEXICAL") || section.contains("Lexical")) {
-                    feedbackContent.getChildren().add(createSection("Lexical Resource", section, "#f39c12"));
-                } else if (section.contains("GRAMMATICAL") || section.contains("Grammatical")) {
-                    feedbackContent.getChildren().add(createSection("Grammatical Range & Accuracy", section, "#1abc9c"));
-                } else if (section.contains("IMPROVEMENT") || section.contains("Improvement")) {
-                    feedbackContent.getChildren().add(createSection("Areas for Improvement", section, "#e67e22"));
-                } else if (section.contains("SAMPLE") || section.contains("Sample")) {
-                    feedbackContent.getChildren().add(createSection("Sample Answer", section, "#27ae60"));
-                } else {
-                    feedbackContent.getChildren().add(createSection("Feedback", section, "#7f8c8d"));
-                }
-            }
+        Label bandScore = new Label(String.format("%.1f", d.overallBand));
+        bandScore.getStyleClass().add("overall-band-score");
+
+        VBox overallBox = new VBox(10, bandTitle, bandScore);
+        overallBox.getStyleClass().addAll("feedback-section", "overall-band");
+
+        content.getChildren().add(overallBox);
+
+        /* ===== CRITERIA ===== */
+
+        content.getChildren().add(
+                bandRow("Task Achievement / Response",
+                        d.taskAchievement, "feedback-task"));
+
+        content.getChildren().add(
+                bandRow("Coherence & Cohesion",
+                        d.coherenceCohesion, "feedback-coherence"));
+
+        content.getChildren().add(
+                bandRow("Lexical Resource",
+                        d.lexicalResource, "feedback-lexical"));
+
+        content.getChildren().add(
+                bandRow("Grammatical Range & Accuracy",
+                        d.grammaticalAccuracy, "feedback-grammar"));
+
+        /* ===== QUESTION ===== */
+
+        content.getChildren().add(
+                contentSection("Question", d.question));
+
+        /* ===== USER ANSWER ===== */
+
+        content.getChildren().add(
+                contentSection("Your Answer", d.candidateAnswer));
+
+        /* ===== SAMPLE ANSWER ===== */
+
+        content.getChildren().add(
+                contentSection("Sample Answer (Band 8–9)", d.sampleAnswer));
+
+        /* ===== IMPROVEMENTS ===== */
+
+        VBox improvementsList = new VBox(6);
+        for (String s : d.improvements) {
+            Label l = new Label("• " + s);
+            l.getStyleClass().add("improvement-item");
+            improvementsList.getChildren().add(l);
         }
 
-        contentBox.getChildren().add(feedbackContent);
+        Label impTitle = new Label("Areas for Improvement");
+        impTitle.getStyleClass().add("section-title");
+
+        VBox improvementBox = new VBox(10, impTitle, improvementsList);
+        improvementBox.getStyleClass().addAll("feedback-section", "feedback-sample");
+
+        content.getChildren().add(improvementBox);
     }
 
-    private VBox createSection(String title, String content, String color) {
-        VBox section = new VBox(10);
-        section.setStyle(
-                "-fx-background-color: white; " +
-                        "-fx-padding: 20; " +
-                        "-fx-border-color: " + color + "; " +
-                        "-fx-border-width: 0 0 0 5; " +
-                        "-fx-background-radius: 5; " +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
-        );
+    /* =====================================================
+                           HELPERS
+       ===================================================== */
 
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle(
-                "-fx-font-size: 18px; " +
-                        "-fx-font-weight: bold; " +
-                        "-fx-text-fill: " + color + ";"
-        );
+    private VBox bandRow(String title, double score, String colorClass) {
+        Label label = new Label(title);
+        label.getStyleClass().add("band-label");
 
-        Label contentLabel = new Label(content);
-        contentLabel.setWrapText(true);
-        contentLabel.setMaxWidth(850);
-        contentLabel.setStyle(
-                "-fx-font-size: 14px; " +
-                        "-fx-text-fill: #2c3e50; " +
-                        "-fx-line-spacing: 2px;"
-        );
+        Label scoreLabel = new Label(String.format("%.1f", score));
+        scoreLabel.getStyleClass().add("band-score");
 
-        section.getChildren().addAll(titleLabel, contentLabel);
-        return section;
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox row = new HBox(10, label, spacer, scoreLabel);
+        row.getStyleClass().addAll("band-row", "feedback-section", colorClass);
+
+        return new VBox(row);
     }
 
-    private void goToSelection() {
-        TaskSelectionScreen selectionScreen = new TaskSelectionScreen(primaryStage);
-        primaryStage.setScene(selectionScreen.getScene());
-    }
+    private VBox contentSection(String titleText, String body) {
+        Label title = new Label(titleText);
+        title.getStyleClass().add("section-title");
 
-    private void showError(String message) {
-        contentBox.getChildren().clear();
+        Label text = new Label(body);
+        text.getStyleClass().add("feedback-content-text");
+        text.setWrapText(true);
 
-        Label errorLabel = new Label("Error: " + message);
-        errorLabel.setStyle(
-                "-fx-font-size: 16px; " +
-                        "-fx-text-fill: #e74c3c; " +
-                        "-fx-padding: 50;"
-        );
-        errorLabel.setWrapText(true);
+        VBox box = new VBox(10, title, text);
+        box.getStyleClass().addAll("feedback-content", "feedback-section");
 
-        contentBox.getChildren().add(errorLabel);
+        return box;
     }
 
     public Scene getScene() {

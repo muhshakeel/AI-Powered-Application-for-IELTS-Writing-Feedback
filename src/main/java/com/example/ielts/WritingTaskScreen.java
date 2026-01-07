@@ -20,6 +20,7 @@ public class WritingTaskScreen {
     private Label timerLabel;
     private Label wordCountLabel;
     private Label questionLabel;
+    private ProgressBar wordProgressBar;
 
     private Timeline timeline;
     private int timeInSeconds;
@@ -38,145 +39,121 @@ public class WritingTaskScreen {
 
     private void createScene() {
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #f5f6f8;");
+        root.getStyleClass().add("app-root");
 
         root.setTop(createTopBar());
-        root.setCenter(createCenterSection());
-        root.setBottom(createBottomSection());
+        root.setCenter(createScrollableContent());
 
         scene = new Scene(root, 1100, 750);
+        scene.getStylesheets().add(
+                getClass().getResource("/com/example/ielts/theme.css").toExternalForm()
+        );
+
         startTimer();
     }
 
-    /* ================= TOP BAR ================= */
-
     private HBox createTopBar() {
-        HBox topBar = new HBox(20);
-        topBar.setPadding(new Insets(15));
-        topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0;");
+        HBox topBar = new HBox(30);
+        topBar.setAlignment(Pos.CENTER);
+        topBar.getStyleClass().add("top-bar");
 
         Button backBtn = new Button("← Back");
-        backBtn.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-background-color: transparent;" +
-                        "-fx-cursor: hand;"
-        );
+        backBtn.getStyleClass().add("button-outline");
         backBtn.setOnAction(e -> goBack());
 
         Label taskLabel = new Label("Task " + taskNumber);
-        taskLabel.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-font-weight: bold;"
-        );
+        taskLabel.getStyleClass().add("section-title");
 
-        wordCountLabel = new Label("0 / " + minWords + " words");
-        wordCountLabel.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-text-fill: #e67e22;"
-        );
+        HBox leftBox = new HBox(12, backBtn, taskLabel);
+        leftBox.setAlignment(Pos.CENTER_LEFT);
 
         timerLabel = new Label(formatTime(timeInSeconds));
-        timerLabel.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-text-fill: #27ae60;"
-        );
+        timerLabel.getStyleClass().add("timer-text");
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        StackPane timerBox = new StackPane(timerLabel);
+        timerBox.getStyleClass().add("timer-box");
 
-        topBar.getChildren().addAll(backBtn, taskLabel, wordCountLabel, spacer, timerLabel);
+        wordProgressBar = new ProgressBar(0);
+        wordProgressBar.setPrefWidth(220);
+        wordProgressBar.getStyleClass().addAll("word-bar", "word-bar-low");
+
+        wordCountLabel = new Label("0 / " + minWords + " words");
+        wordCountLabel.getStyleClass().add("word-low");
+
+        HBox wordBox = new HBox(10, wordProgressBar, wordCountLabel);
+        wordBox.setAlignment(Pos.CENTER_RIGHT);
+
+        Region spacerLeft = new Region();
+        Region spacerRight = new Region();
+        HBox.setHgrow(spacerLeft, Priority.ALWAYS);
+        HBox.setHgrow(spacerRight, Priority.ALWAYS);
+
+        topBar.getChildren().addAll(leftBox, spacerLeft, timerBox, spacerRight, wordBox);
         return topBar;
     }
 
-    /* ================= CENTER ================= */
-
-    private VBox createCenterSection() {
-        VBox center = new VBox(15);
-        center.setPadding(new Insets(20));
+    private ScrollPane createScrollableContent() {
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(20));
+        content.setFillWidth(true); // ✅ KEY LINE
 
         Label questionTitle = new Label("Question");
-        questionTitle.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-font-weight: bold;"
-        );
+        questionTitle.getStyleClass().add("section-title");
 
         questionLabel = new Label("Loading...");
         questionLabel.setWrapText(true);
-        questionLabel.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-background-color: white;" +
-                        "-fx-padding: 15;" +
-                        "-fx-border-color: #e0e0e0;" +
-                        "-fx-border-radius: 8;" +
-                        "-fx-background-radius: 8;"
-        );
-
-        ScrollPane questionPane = new ScrollPane(questionLabel);
-        questionPane.setFitToWidth(true);
-        questionPane.setPrefHeight(160);
-        questionPane.setStyle("-fx-background-color: transparent;");
+        questionLabel.setMaxWidth(Double.MAX_VALUE); // ✅ ALLOW FULL WIDTH
+        questionLabel.getStyleClass().add("card");
 
         writingArea = new TextArea();
         writingArea.setPromptText("Start writing your response here...");
         writingArea.setWrapText(true);
-        writingArea.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-background-color: white;" +
-                        "-fx-border-color: #e0e0e0;" +
-                        "-fx-border-radius: 8;"
-        );
-
+        writingArea.setPrefHeight(450);
         writingArea.textProperty().addListener((obs, o, n) -> updateWordCount());
 
-        VBox.setVgrow(writingArea, Priority.ALWAYS);
-        center.getChildren().addAll(questionTitle, questionPane, writingArea);
-        return center;
-    }
-
-    /* ================= BOTTOM ================= */
-
-    private HBox createBottomSection() {
-        HBox bottom = new HBox();
-        bottom.setPadding(new Insets(15));
-        bottom.setAlignment(Pos.CENTER_RIGHT);
-        bottom.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0;");
-
         Button submit = new Button("Submit for Feedback");
-        submit.setStyle(
-                "-fx-font-family: 'Times New Roman';" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-color: #f5c16c;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-cursor: hand;"
-        );
+        submit.getStyleClass().add("button-accent");
+        submit.setPrefWidth(260);
+        submit.setPrefHeight(48);
         submit.setOnAction(e -> submitAnswer());
 
-        bottom.getChildren().add(submit);
-        return bottom;
-    }
+        HBox submitBox = new HBox(submit);
+        submitBox.setAlignment(Pos.CENTER);
+        submitBox.setPadding(new Insets(40, 0, 20, 0));
 
-    /* ================= LOGIC ================= */
+        content.getChildren().addAll(
+                questionTitle,
+                questionLabel,
+                writingArea,
+                submitBox
+        );
+
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.getStyleClass().add("transparent-scroll");
+
+        return scrollPane;
+    }
 
     private void updateWordCount() {
         String text = writingArea.getText().trim();
         int count = text.isEmpty() ? 0 : text.split("\\s+").length;
 
+        double progress = Math.min(1.0, (double) count / minWords);
+        wordProgressBar.setProgress(progress);
+
         wordCountLabel.setText(count + " / " + minWords + " words");
 
+        wordProgressBar.getStyleClass().removeAll("word-bar-low", "word-bar-ok");
+        wordCountLabel.getStyleClass().removeAll("word-low", "word-ok");
+
         if (count < minWords) {
-            wordCountLabel.setStyle("-fx-font-family: 'Times New Roman'; -fx-font-size: 15px; -fx-text-fill: #e74c3c;");
+            wordProgressBar.getStyleClass().add("word-bar-low");
+            wordCountLabel.getStyleClass().add("word-low");
         } else {
-            wordCountLabel.setStyle("-fx-font-family: 'Times New Roman'; -fx-font-size: 15px; -fx-text-fill: #27ae60;");
+            wordProgressBar.getStyleClass().add("word-bar-ok");
+            wordCountLabel.getStyleClass().add("word-ok");
         }
     }
 
@@ -184,15 +161,7 @@ public class WritingTaskScreen {
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             timeInSeconds--;
             timerLabel.setText(formatTime(timeInSeconds));
-
-            if (timeInSeconds <= 60) {
-                timerLabel.setStyle("-fx-font-family: 'Times New Roman'; -fx-font-size: 18px; -fx-text-fill: red;");
-            }
-
-            if (timeInSeconds <= 0) {
-                timeline.stop();
-                submitAnswer();
-            }
+            if (timeInSeconds <= 0) submitAnswer();
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -217,7 +186,12 @@ public class WritingTaskScreen {
 
     private void submitAnswer() {
         timeline.stop();
-        FeedbackScreen fs = new FeedbackScreen(primaryStage, taskNumber, currentQuestion, writingArea.getText());
+        FeedbackScreen fs = new FeedbackScreen(
+                primaryStage,
+                taskNumber,
+                currentQuestion,
+                writingArea.getText()
+        );
         primaryStage.setScene(fs.getScene());
     }
 
