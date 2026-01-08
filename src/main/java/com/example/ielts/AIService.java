@@ -15,28 +15,22 @@ public class AIService {
     private static final String MODEL = "llama-3.3-70b-versatile";
 
     /* =========================================================
-       QUESTION GENERATION (USED BY WritingTaskScreen)
+       QUESTION GENERATION
        ========================================================= */
 
     public static String generateQuestion(int taskNumber) throws Exception {
 
-        String prompt;
-
-        if (taskNumber == 1) {
-            prompt = """
-            Generate a realistic IELTS Writing Task 1 question.
-            Format it EXACTLY as in the real IELTS exam.
-            Start with: "You should spend about 20 minutes on this task."
-            Include clear data and instructions.
-            """;
-        } else {
-            prompt = """
-            Generate a realistic IELTS Writing Task 2 essay question.
-            Format it EXACTLY as in the real IELTS exam.
-            Start with: "You should spend about 40 minutes on this task."
-            Include clear instructions.
-            """;
-        }
+        String prompt = (taskNumber == 1)
+                ? """
+                Generate a realistic IELTS Writing Task 1 question.
+                Use official IELTS wording.
+                Start with: "You should spend about 20 minutes on this task."
+                """
+                : """
+                Generate a realistic IELTS Writing Task 2 question.
+                Use official IELTS wording.
+                Start with: "You should spend about 40 minutes on this task."
+                """;
 
         JSONObject body = new JSONObject();
         body.put("model", MODEL);
@@ -54,7 +48,7 @@ public class AIService {
     }
 
     /* =========================================================
-       STRUCTURED FEEDBACK (USED BY FeedbackScreen)
+       STRUCTURED FEEDBACK + SAMPLE ANSWER
        ========================================================= */
 
     public static FeedbackData getStructuredFeedback(
@@ -63,14 +57,24 @@ public class AIService {
             String answer
     ) throws Exception {
 
-        String taskName = taskNumber == 1 ? "Task 1" : "Task 2";
+        String taskType = (taskNumber == 1) ? "Task 1" : "Task 2";
+
+        String sampleInstruction = (taskNumber == 1)
+                ? "Write a Band 8–9 IELTS Task 1 model answer (minimum 150 words)."
+                : "Write a Band 8–9 IELTS Task 2 model essay (minimum 250 words).";
 
         String prompt = """
         You are an official IELTS examiner.
 
         Evaluate the following IELTS Writing %s response.
 
-        RETURN ONLY VALID JSON IN THIS FORMAT:
+        VERY IMPORTANT RULES:
+        - Output MUST be valid JSON only
+        - Do NOT include explanations
+        - Do NOT include markdown
+        - Do NOT include extra text
+
+        JSON FORMAT (STRICT):
 
         {
           "taskAchievement": 0.0,
@@ -85,19 +89,24 @@ public class AIService {
           ]
         }
 
-        Scores must be between 0.0 and 9.0 in 0.5 increments.
+        SCORING:
+        - Use IELTS band descriptors
+        - Scores must be in 0.5 increments (0.0–9.0)
+
+        SAMPLE ANSWER REQUIREMENT:
+        %s
 
         QUESTION:
         %s
 
         CANDIDATE ANSWER:
         %s
-        """.formatted(taskName, question, answer);
+        """.formatted(taskType, sampleInstruction, question, answer);
 
         JSONObject body = new JSONObject();
         body.put("model", MODEL);
-        body.put("temperature", 0.3);
-        body.put("max_tokens", 2500);
+        body.put("temperature", 0.2);
+        body.put("max_tokens", 3000);
 
         JSONArray messages = new JSONArray();
         messages.put(new JSONObject()
@@ -107,6 +116,8 @@ public class AIService {
         body.put("messages", messages);
 
         String response = callAPI(body);
+
+        // --- Parse strict JSON ---
         JSONObject json = new JSONObject(response);
 
         FeedbackData data = new FeedbackData();

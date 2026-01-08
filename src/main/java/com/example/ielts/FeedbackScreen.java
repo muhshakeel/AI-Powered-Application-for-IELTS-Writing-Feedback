@@ -73,7 +73,6 @@ public class FeedbackScreen {
 
         scene = new Scene(root, 1100, 750);
 
-        /* ================= CSS (FIXED) ================= */
         /* ================= CSS ================= */
 
         URL css = FeedbackScreen.class.getResource(
@@ -83,10 +82,8 @@ public class FeedbackScreen {
         if (css == null) {
             System.err.println("❌ theme.css NOT FOUND");
         } else {
-            System.out.println("✅ theme.css loaded: " + css);
             scene.getStylesheets().add(css.toExternalForm());
         }
-
 
         /* ================= LOAD FEEDBACK ================= */
 
@@ -94,6 +91,9 @@ public class FeedbackScreen {
             try {
                 FeedbackData data =
                         AIService.getStructuredFeedback(taskNumber, question, answer);
+
+                // ✅ SAVE FEEDBACK REPORT (BACKGROUND THREAD)
+                FeedbackFileManager.saveFeedback(data);
 
                 Platform.runLater(() -> renderFeedback(data));
 
